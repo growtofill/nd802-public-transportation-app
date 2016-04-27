@@ -9,9 +9,10 @@ gulp.task('copy-html', () => (
         .pipe(dest('dist'))
 ));
 
-gulp.task('compile-css', () => (
+gulp.task('compile-css', done => (
     src('src/css/index.css')
         .pipe(concatCss('app.bundle.css'))
+        .on('error', done)
         .pipe(dest('dist'))
 ));
 
@@ -27,7 +28,8 @@ gulp.task('compile-js', done => (
                     exclude: /node_modules/,
                     loader: 'babel-loader'
                 }]
-            }
+            },
+            devtool: 'source-map'
         }))
         .on('error', done)
         .pipe(dest('dist'))

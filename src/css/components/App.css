@@ -1,0 +1,33 @@
+.App {
+    height: 100%;
+}
+.App-body {
+    display: flex;
+    height: 100%;
+}
+.App-body-aside {
+    display: flex;
+    flex-direction: column;
+    padding: 0 20px;
+
+    background-color: #f7f7f7;
+}
+@media (max-width: 959px) {
+    .App-body {
+        flex-direction: column;
+    }
+}
+@media (min-width: 680px) and (max-width: 959px) {
+    .App-body-aside {
+        flex-direction: row;
+        align-items: baseline;
+    }
+    .App-body-aside > :nth-child(n+2) {
+        margin-left: 20px;
+    }
+}
+@media (max-width: 679px) {
+    .App-body-aside > * {
+        width: 100% !important;
+    }
+}
