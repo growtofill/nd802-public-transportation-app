@@ -1,3 +1,6 @@
+/*
+    Station abbreviations are available at <https://api.bart.gov/docs/overview/abbrev.aspx>
+ */
 export default new Map([
     ["12th", "12th St. Oakland City Center"],
     ["16th", "16th St. Mission (SF)"],

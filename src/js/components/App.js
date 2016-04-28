@@ -8,8 +8,7 @@ import TableHeaderComponent from 'material-ui/lib/table/table-header';
 import TableRowColumnComponent from 'material-ui/lib/table/table-row-column';
 import TableBodyComponent from 'material-ui/lib/table/table-body';
 import RaisedButtonComponent from 'material-ui/lib/raised-button';
-import stations from '../data/stations';
-import { depart } from '../apis/bart';
+import CircularProgressComponent from 'material-ui/lib/circular-progress';
 
 const [
     AppBar,
@@ -20,7 +19,8 @@ const [
     TableHeader,
     TableRowColumn,
     TableBody,
-    RaisedButton
+    RaisedButton,
+    CircularProgress
 ] = [
     AppBarComponent,
     AutoCompleteComponent,
@@ -30,10 +30,9 @@ const [
     TableHeaderComponent,
     TableRowColumnComponent,
     TableBodyComponent,
-    RaisedButtonComponent
+    RaisedButtonComponent,
+    CircularProgressComponent
 ].map(createFactory);
-
-const stationNames = Array.from(stations.keys());
 
 export default class App extends Component {
     constructor(props) {
@@ -42,11 +41,14 @@ export default class App extends Component {
         this.state = {
             from: '',
             to: '',
-            trains: []
+            trains: [],
+            isRequestInProgress: false
         };
     }
     render() {
-        const { trains } = this.state;
+        const { trains, isRequestInProgress } = this.state;
+        const { stations } = this.props;
+        const stationNames = Array.from(stations.keys());
 
         return (
             DOM.div({ className: 'App' }, [
@@ -77,36 +79,46 @@ export default class App extends Component {
                         })
                     ]),
                     DOM.div({ className: 'App-body-main' }, [
-                        Table(null, [
-                            TableBody({ displayRowCheckbox: false }, [
-                                TableRow(null, [
-                                    TableHeaderColumn(null, 'Train #'),
-                                    TableHeaderColumn(null, 'Departure'),
-                                    TableHeaderColumn(null, 'Arrival')
-                                ]),
-                                ...trains.map(train =>
-                                    TableRow(null, [
-                                        TableRowColumn(null, train.trainIdx),
-                                        TableRowColumn(null, train.origTimeMin),
-                                        TableRowColumn(null, train.destTimeMin)
+                            isRequestInProgress
+                                ? CircularProgress({ style: { margin: 'auto' } })
+                                : trains.length ? (
+                                    Table(null, [
+                                        TableBody({ displayRowCheckbox: false }, [
+                                            TableRow(null, [
+                                                TableHeaderColumn(null, 'Train #'),
+                                                TableHeaderColumn(null, 'Departure'),
+                                                TableHeaderColumn(null, 'Arrival')
+                                            ]),
+                                            ...trains.map(train =>
+                                                TableRow(null, [
+                                                    TableRowColumn(null, train.trainIdx),
+                                                    TableRowColumn(null, train.origTimeMin),
+                                                    TableRowColumn(null, train.destTimeMin)
+                                                ])
+                                            )
+                                        ])
                                     ])
-                                )
-                            ])
-                        ])
+                                ) : null
                     ])
                 ])
             ])
         );
     }
     updateDirection(direction, value) {
+        const { stations } = this.props;
         const stationCode = stations.get(value);
         this.setState({ [direction]: stationCode });
     }
     submit() {
         const { orig, dest } = this.state;
+        const { depart } = this.props.api;
+
+        this.setState({ isRequestInProgress: true });
 
         depart({ orig, dest })
-            .then(trains => this.setState({ trains }));
+            .then(trains =>
+                this.setState({ trains, isRequestInProgress: false })
+            );
 
     }
 }
