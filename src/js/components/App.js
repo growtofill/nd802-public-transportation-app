@@ -8,6 +8,7 @@ import TableHeaderComponent from 'material-ui/lib/table/table-header';
 import TableRowColumnComponent from 'material-ui/lib/table/table-row-column';
 import TableBodyComponent from 'material-ui/lib/table/table-body';
 import RaisedButtonComponent from 'material-ui/lib/raised-button';
+import stations from '../data/stations';
 
 const [
     AppBar,
@@ -31,7 +32,17 @@ const [
     RaisedButtonComponent
 ].map(createFactory);
 
+const stationNames = Array.from(stations.keys());
+
 export default class App extends Component {
+    constructor(props) {
+        super(props);
+
+        this.state = {
+            from: '',
+            to: ''
+        };
+    }
     render() {
         return (
             DOM.div({ className: 'App' }, [
@@ -40,36 +51,54 @@ export default class App extends Component {
                     showMenuIconButton: false
                 }),
                 DOM.div({ className: 'App-body' }, [
-                    DOM.div({ className: 'App-body-aside' }, [
+                    DOM.form({ className: 'App-body-aside' }, [
                         AutoComplete({
                             floatingLabelText: 'From',
-                            dataSource: []
+                            dataSource: stationNames,
+                            filter: AutoCompleteComponent.caseInsensitiveFilter,
+                            onUpdateInput: v => this.updateDirection('from', v),
+                            onNewRequest: v => this.updateDirection('from', v)
                         }),
                         AutoComplete({
                             floatingLabelText: 'To',
-                            dataSource: []
+                            dataSource: stationNames,
+                            filter: AutoCompleteComponent.caseInsensitiveFilter,
+                            onUpdateInput: v => this.updateDirection('to', v),
+                            onNewRequest: v => this.updateDirection('to', v)
                         }),
                         RaisedButton({
                             primary: true,
-                            label: 'Search'
+                            label: 'Search',
+                            onMouseUp: () => this.submit()
                         })
                     ]),
-                    Table({ selectable: false }, [
-                        TableBody(null, [
-                            TableRow(null, [
-                                TableHeaderColumn(null, '#'),
-                                TableHeaderColumn(null, 'Departure'),
-                                TableHeaderColumn(null, 'Arrival')
-                            ]),
-                            TableRow(null, [
-                                TableRowColumn(null, '1'),
-                                TableRowColumn(null, 'Kyiv'),
-                                TableRowColumn(null, 'Dnipro')
+                    DOM.div({ className: 'App-body-main' }, [
+                        Table({ selectable: false }, [
+                            TableBody(null, [
+                                TableRow(null, [
+                                    TableHeaderColumn(null, '#'),
+                                    TableHeaderColumn(null, 'Departure'),
+                                    TableHeaderColumn(null, 'Arrival')
+                                ]),
+                                TableRow(null, [
+                                    TableRowColumn(null, '1'),
+                                    TableRowColumn(null, 'Kyiv'),
+                                    TableRowColumn(null, 'Dnipro')
+                                ])
                             ])
                         ])
                     ])
                 ])
             ])
         );
+    }
+    updateDirection(direction, value) {
+        const stationCode = stations.get(value);
+        this.setState({ [direction]: stationCode });
+    }
+    submit() {
+        const { from, to } = this.state;
+
+        console.debug(from, to);
     }
 }

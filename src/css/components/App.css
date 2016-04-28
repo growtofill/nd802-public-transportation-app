@@ -8,9 +8,13 @@
 .App-body-aside {
     display: flex;
     flex-direction: column;
+
     padding: 0 20px;
 
     background-color: #f7f7f7;
+}
+.App-body-main {
+    flex: 1 1;
 }
 @media (max-width: 959px) {
     .App-body {
