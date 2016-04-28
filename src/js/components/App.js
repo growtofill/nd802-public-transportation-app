@@ -9,6 +9,7 @@ import TableRowColumnComponent from 'material-ui/lib/table/table-row-column';
 import TableBodyComponent from 'material-ui/lib/table/table-body';
 import RaisedButtonComponent from 'material-ui/lib/raised-button';
 import stations from '../data/stations';
+import { depart } from '../apis/bart';
 
 const [
     AppBar,
@@ -40,10 +41,13 @@ export default class App extends Component {
 
         this.state = {
             from: '',
-            to: ''
+            to: '',
+            trains: []
         };
     }
     render() {
+        const { trains } = this.state;
+
         return (
             DOM.div({ className: 'App' }, [
                 AppBar({
@@ -56,15 +60,15 @@ export default class App extends Component {
                             floatingLabelText: 'From',
                             dataSource: stationNames,
                             filter: AutoCompleteComponent.caseInsensitiveFilter,
-                            onUpdateInput: v => this.updateDirection('from', v),
-                            onNewRequest: v => this.updateDirection('from', v)
+                            onUpdateInput: v => this.updateDirection('orig', v),
+                            onNewRequest: v => this.updateDirection('orig', v)
                         }),
                         AutoComplete({
                             floatingLabelText: 'To',
                             dataSource: stationNames,
                             filter: AutoCompleteComponent.caseInsensitiveFilter,
-                            onUpdateInput: v => this.updateDirection('to', v),
-                            onNewRequest: v => this.updateDirection('to', v)
+                            onUpdateInput: v => this.updateDirection('dest', v),
+                            onNewRequest: v => this.updateDirection('dest', v)
                         }),
                         RaisedButton({
                             primary: true,
@@ -73,18 +77,20 @@ export default class App extends Component {
                         })
                     ]),
                     DOM.div({ className: 'App-body-main' }, [
-                        Table({ selectable: false }, [
-                            TableBody(null, [
+                        Table(null, [
+                            TableBody({ displayRowCheckbox: false }, [
                                 TableRow(null, [
-                                    TableHeaderColumn(null, '#'),
+                                    TableHeaderColumn(null, 'Train #'),
                                     TableHeaderColumn(null, 'Departure'),
                                     TableHeaderColumn(null, 'Arrival')
                                 ]),
-                                TableRow(null, [
-                                    TableRowColumn(null, '1'),
-                                    TableRowColumn(null, 'Kyiv'),
-                                    TableRowColumn(null, 'Dnipro')
-                                ])
+                                ...trains.map(train =>
+                                    TableRow(null, [
+                                        TableRowColumn(null, train.trainIdx),
+                                        TableRowColumn(null, train.origTimeMin),
+                                        TableRowColumn(null, train.destTimeMin)
+                                    ])
+                                )
                             ])
                         ])
                     ])
@@ -97,8 +103,10 @@ export default class App extends Component {
         this.setState({ [direction]: stationCode });
     }
     submit() {
-        const { from, to } = this.state;
+        const { orig, dest } = this.state;
 
-        console.debug(from, to);
+        depart({ orig, dest })
+            .then(trains => this.setState({ trains }));
+
     }
 }
