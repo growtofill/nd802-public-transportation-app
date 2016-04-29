@@ -25,10 +25,13 @@
 @media (min-width: 680px) and (max-width: 959px) {
     .App-body-aside {
         flex-direction: row;
-        align-items: baseline;
+        align-items: flex-start;
     }
     .App-body-aside > :nth-child(n+2) {
         margin-left: 20px;
+    }
+    .App-body-aside > :last-child {
+        margin-top: 32px;
     }
 }
 @media (max-width: 679px) {
