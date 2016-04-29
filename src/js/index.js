@@ -3,6 +3,9 @@ import { render } from 'react-dom';
 import App from './components/App';
 import stations from './data/stations';
 import { depart } from './apis/bart';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+
+injectTapEventPlugin();
 
 document.addEventListener('DOMContentLoaded', () => {
     render(
