@@ -28,16 +28,17 @@ export function depart({ orig, dest }) {
                 parseString(
                     text,
                     {
-                        explicitRoot: false,
-                        explicitArray: false
+                        explicitRoot: false
                     },
                     (error, result) => {
                         if (error) reject(error);
 
-                        const { trip } = result.schedule.request;
-                        const trains = (
-                            Array.isArray(trip) ? trip : [trip]
-                        ).map(trip => trip.leg.$);
+                        const { trip } = result.schedule[0].request[0];
+                        const trains = trip.map(trip => ({
+                            route: trip.leg.map(leg => leg.$.trainIdx),
+                            departureTime: trip.leg[0].$.origTimeMin,
+                            arrivalTime: trip.leg[trip.leg.length - 1].$.destTimeMin
+                        }));
 
                         resolve(trains);
                     }

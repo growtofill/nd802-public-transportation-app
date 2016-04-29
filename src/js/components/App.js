@@ -91,9 +91,9 @@ export default class App extends Component {
                                             ]),
                                             ...trains.map(train =>
                                                 TableRow(null, [
-                                                    TableRowColumn(null, train.trainIdx),
-                                                    TableRowColumn(null, train.origTimeMin),
-                                                    TableRowColumn(null, train.destTimeMin)
+                                                    TableRowColumn(null, train.route.join(' → ')),
+                                                    TableRowColumn(null, train.departureTime),
+                                                    TableRowColumn(null, train.arrivalTime)
                                                 ])
                                             )
                                         ])
