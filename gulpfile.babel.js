@@ -1,6 +1,7 @@
 import gulp from 'gulp';
 import concatCss from 'gulp-concat-css';
 import webpack from 'webpack-stream';
+import babel from 'gulp-babel';
 
 let { src, dest } = gulp;
 
@@ -35,10 +36,17 @@ gulp.task('compile-js', done => (
         .pipe(dest('dist'))
 ));
 
+gulp.task('compile-sw', () =>
+    src('src/js/sw.js')
+        .pipe(babel({ presets: ['es2015'] }))
+        .pipe(dest('dist'))
+);
+
 gulp.task('watch', () => {
     gulp.watch('src/*.html', ['copy-html']);
     gulp.watch('src/css/**/*.css', ['compile-css']);
     gulp.watch('src/js/**/*.{js,jsx}', ['compile-js']);
+    gulp.watch('src/js/sw.js', ['compile-sw']);
 });
 
-gulp.task('default', ['copy-html', 'compile-css', 'compile-js']);
+gulp.task('default', ['copy-html', 'compile-css', 'compile-js', 'compile-sw']);

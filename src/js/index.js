@@ -11,3 +11,5 @@ document.addEventListener('DOMContentLoaded', () => {
     );
 });
 
+if (navigator.serviceWorker) navigator.serviceWorker.register('/sw.js');
+
