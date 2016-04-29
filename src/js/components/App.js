@@ -47,7 +47,7 @@ export default class App extends Component {
         };
     }
     render() {
-        const { trains, isRequestInProgress, origError, destError } = this.state;
+        const { trains, isRequestInProgress, departureError, arrivalError } = this.state;
         const { stations } = this.props;
         const stationNames = Array.from(stations.keys());
 
@@ -63,17 +63,17 @@ export default class App extends Component {
                             floatingLabelText: 'From',
                             dataSource: stationNames,
                             filter,
-                            onUpdateInput: v => this.updateDirection('orig', v),
-                            onNewRequest: v => this.updateDirection('orig', v),
-                            errorText: origError
+                            onUpdateInput: v => this.updateDirection('departure', v),
+                            onNewRequest: v => this.updateDirection('departure', v),
+                            errorText: departureError
                         }),
                         AutoComplete({
                             floatingLabelText: 'To',
                             dataSource: stationNames,
                             filter,
-                            onUpdateInput: v => this.updateDirection('dest', v),
-                            onNewRequest: v => this.updateDirection('dest', v),
-                            errorText: destError
+                            onUpdateInput: v => this.updateDirection('arrival', v),
+                            onNewRequest: v => this.updateDirection('arrival', v),
+                            errorText: arrivalError
                         }),
                         RaisedButton({
                             primary: true,
@@ -108,15 +108,18 @@ export default class App extends Component {
         );
     }
     updateDirection(direction, value) {
-        const { stations } = this.props;
-        const stationCode = stations.get(value);
-        this.setState({ [direction]: stationCode });
+        this.setState({
+            [direction]: value,
+            [direction + 'Error']: ''
+        });
     }
     submit() {
         if (!this.validate()) return;
 
-        const { depart } = this.props.api;
-        const { orig, dest } = this.state;
+        const { api, stations } = this.props;
+        const { departure, arrival } = this.state;
+        const orig = stations.get(departure);
+        const dest = stations.get(arrival);
 
         const storageKey = `${orig}-${dest}`;
         const storedTrains = localStorage.getItem(storageKey);
@@ -126,7 +129,7 @@ export default class App extends Component {
 
         this.setState(nextState);
 
-        depart({ orig, dest })
+        api.depart({ orig, dest })
             .then(trains => {
                 localStorage.setItem(storageKey, JSON.stringify(trains));
                 this.setState({trains, isRequestInProgress: false});
@@ -135,26 +138,26 @@ export default class App extends Component {
 
     }
     validate() {
-        const origError = this.getDepartureValidationMessage();
-        const destError = this.getArrivalValidationMessage();
+        const departureError = this.getDepartureValidationMessage();
+        const arrivalError = this.getArrivalValidationMessage();
 
-        this.setState({ origError, destError });
+        this.setState({ departureError, arrivalError });
 
-        return !origError && !destError;
+        return !departureError && !arrivalError;
     }
     getDepartureValidationMessage() {
         const { stations } = this.props;
-        const { orig } = this.state;
+        const { departure } = this.state;
 
-        if (!orig) return 'The departure station must not be empty';
-        if (Array.from(stations.values()).indexOf(orig) == -1) return 'There is no such station';
+        if (!departure) return 'The departure station must not be empty';
+        if (!stations.get(departure)) return 'There is no such station';
     }
     getArrivalValidationMessage() {
         const { stations } = this.props;
-        const { orig, dest } = this.state;
+        const { departure, arrival } = this.state;
 
-        if (!dest) return 'The arrival station must not be empty';
-        if (Array.from(stations.values()).indexOf(dest) == -1) return 'There is no such station';
-        if (dest == orig) return 'Stations must be different';
+        if (!arrival) return 'The arrival station must not be empty';
+        if (!stations.get(arrival)) return 'There is no such station';
+        if (arrival == departure) return 'Stations must be different';
     }
 }
