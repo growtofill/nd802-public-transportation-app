@@ -34,6 +34,10 @@ const [
     CircularProgressComponent
 ].map(createFactory);
 
+function filter(searchText, key) {
+    return key.toLowerCase().startsWith(searchText.toLowerCase());
+}
+
 export default class App extends Component {
     constructor(props) {
         super(props);
@@ -61,14 +65,14 @@ export default class App extends Component {
                         AutoComplete({
                             floatingLabelText: 'From',
                             dataSource: stationNames,
-                            filter: AutoCompleteComponent.caseInsensitiveFilter,
+                            filter,
                             onUpdateInput: v => this.updateDirection('orig', v),
                             onNewRequest: v => this.updateDirection('orig', v)
                         }),
                         AutoComplete({
                             floatingLabelText: 'To',
                             dataSource: stationNames,
-                            filter: AutoCompleteComponent.caseInsensitiveFilter,
+                            filter,
                             onUpdateInput: v => this.updateDirection('dest', v),
                             onNewRequest: v => this.updateDirection('dest', v)
                         }),
