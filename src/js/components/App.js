@@ -43,10 +43,7 @@ export default class App extends Component {
         super(props);
 
         this.state = {
-            from: '',
-            to: '',
-            trains: [],
-            isRequestInProgress: false
+            trains: []
         };
     }
     render() {
