@@ -110,15 +110,23 @@ export default class App extends Component {
         this.setState({ [direction]: stationCode });
     }
     submit() {
-        const { orig, dest } = this.state;
         const { depart } = this.props.api;
+        const { orig, dest } = this.state;
 
-        this.setState({ isRequestInProgress: true });
+        const storageKey = `${orig}-${dest}`;
+        const storedTrains = localStorage.getItem(storageKey);
+        const nextState = storedTrains
+            ? { trains: JSON.parse(storedTrains) }
+            : { isRequestInProgress: true };
+
+        this.setState(nextState);
 
         depart({ orig, dest })
-            .then(trains =>
-                this.setState({ trains, isRequestInProgress: false })
-            );
+            .then(trains => {
+                localStorage.setItem(storageKey, JSON.stringify(trains));
+                this.setState({trains, isRequestInProgress: false});
+            })
+            .catch(error => console.error(error));
 
     }
 }
