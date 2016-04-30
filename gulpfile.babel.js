@@ -1,7 +1,9 @@
 import gulp from 'gulp';
 import concatCss from 'gulp-concat-css';
-import webpack from 'webpack-stream';
+import webpackStream from 'webpack-stream';
+import webpack from 'webpack';
 import babel from 'gulp-babel';
+import cleanCss from 'gulp-clean-css';
 
 let { src, dest } = gulp;
 
@@ -13,13 +15,14 @@ gulp.task('copy-html', () => (
 gulp.task('compile-css', done => (
     src('src/css/index.css')
         .pipe(concatCss('app.bundle.css'))
+        .pipe(cleanCss())
         .on('error', done)
         .pipe(dest('dist'))
 ));
 
 gulp.task('compile-js', done => (
     src('src/js/index.js')
-        .pipe(webpack({
+        .pipe(webpackStream({
             output: {
                 filename: 'app.bundle.js'
             },
@@ -30,7 +33,14 @@ gulp.task('compile-js', done => (
                     loader: 'babel-loader'
                 }]
             },
-            devtool: 'source-map'
+            devtool: 'source-map',
+            plugins: [
+                new webpack.optimize.UglifyJsPlugin({
+                    compress: {
+                        warnings: false
+                    }
+                })
+            ]
         }))
         .on('error', done)
         .pipe(dest('dist'))
